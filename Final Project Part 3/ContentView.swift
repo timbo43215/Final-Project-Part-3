@@ -18,9 +18,13 @@ struct ContentView: View {
     @State var g: String = "1.0"
     @State var B: String = "0.0"
     @State var kT: String = "100.0"
+    @State var randParticleX: Int = 0
+    @State var randParticleY: Int = 0
     @State var potentialArray: [Double] = []
-    @State var trialEnergy: Double = 0.0
+    @State var previousEnergy: Double = 0.0
     @State var energy: Double = 0.0
+    @State var deltaE: Double = 0.0
+    @State var newEnergy: Double = 0.0
     @State var particleValue: Int = 0
     @StateObject var mySpins = Spins()
     @StateObject var myEnergy = Energy()
@@ -50,9 +54,9 @@ struct ContentView: View {
                 Button(action: {
                     self.calculateTrialConfiguration2D()})
                 {Text("Calculate Trial Configuration")}
-//                Button(action: {
-//                    self.calculateColdMetropolisAlgorithm2D()})
-//                {Text("Calculate Cold Metropolis Algorithm")}
+                Button(action: {
+                    self.calculateWangLandau()})
+                {Text("Calculate Wang Landau")}
 //                Button(action: {
 //                    self.calculateArbitraryMetropolisAlgorithm2D()})
 //                {Text("Calculate Cold Metropolis Algorithm")}
@@ -124,9 +128,10 @@ struct ContentView: View {
     func calculateTrialConfiguration2D () -> [[Double]] {
         particleValue = 0
         let N = Int(Num)!
-        let randParticleX = Int.random(in: 0...(N - 1))
-        let randParticleY = Int.random(in: 0...(N - 1))
+        randParticleX = Int.random(in: 0...(N - 1))
+        randParticleY = Int.random(in: 0...(N - 1))
         var trialConfiguration = mySpins.spinConfiguration
+        deltaE = 0.0
         particleValue = (randParticleX*N) + randParticleY
         
         if (trialConfiguration[randParticleX][randParticleY] == 1.0) {
@@ -135,6 +140,8 @@ struct ContentView: View {
         else {
             trialConfiguration[randParticleX][randParticleY] = 1.0
         }
+        deltaE = calculateDeltaE()
+        newEnergy = deltaE + previousEnergy
         //print(trialConfiguration)
         print("Particle i Value for g(E):")
         print(particleValue)
@@ -142,9 +149,31 @@ struct ContentView: View {
         return trialConfiguration
     }
     
+    func calculateDeltaE () -> Double {
+        let N = Int(Num)!
+        var trialConfiguration = mySpins.spinConfiguration
+        
+        if (randParticleX > 0 && randParticleX < (N-1) && randParticleY > 0 && randParticleY < (N-1)) {
+            deltaE = (2*trialConfiguration[randParticleX][randParticleY])*(trialConfiguration[randParticleX+1][randParticleY] + trialConfiguration[randParticleX-1][randParticleY] + trialConfiguration[randParticleX][randParticleY+1] + trialConfiguration[randParticleX][randParticleY-1])
+        }
+        else if (randParticleX == 0 && randParticleY == 0) {
+            deltaE = (2*trialConfiguration[0][0])*((trialConfiguration[1][0] + trialConfiguration[0][1] + trialConfiguration[N-1][0] + trialConfiguration[0][N-1]))
+        }
+        else if (randParticleX == 0 && randParticleY == (N-1)) {
+            deltaE = (2*trialConfiguration[0][N-1])*((trialConfiguration[0][N-2] + trialConfiguration[1][N-1] + trialConfiguration[N-1][N-1] + trialConfiguration[0][0]))
+        }
+        else if (randParticleX == (N-1) && randParticleY == 0) {
+            deltaE = (2*trialConfiguration[N-1][0])*((trialConfiguration[N-1][1] + trialConfiguration[N-2][0] + trialConfiguration[N-1][N-1] + trialConfiguration[0][0]))
+        }
+        else if (randParticleX == (N-1) && randParticleY == (N-1)) {
+            deltaE = (2*trialConfiguration[N-1][N-1])*((trialConfiguration[N-2][N-1] + trialConfiguration[N-1][0] + trialConfiguration[N-1][N-2] + trialConfiguration[0][N-1]))
+        }
+        return deltaE
+    }
+    
     func calculateArbitraryDensityOfStates () {
         let N = Double(Num)!
-        let upperLimit = pow(2.0, N)
+        let upperLimit = pow(N, 2.0)
         let upperLimitInteger = Int(upperLimit)
         
 //indices 0...(2^N-1)
@@ -156,7 +185,7 @@ struct ContentView: View {
     
     func calculateTrialDensityOfStates () -> [Double] {
         let N = Double(Num)!
-        let upperLimit = pow(2.0, N)
+        let upperLimit = pow(N, 2.0)
         let upperLimitInteger = Int(upperLimit)
         var trialDensityOfStates = myDensityOfStates.arbitraryDensityOfStates
 //indices 0...(2^N-1)
@@ -166,14 +195,59 @@ struct ContentView: View {
         return trialDensityOfStates
         }
     
-    func calculateEnergyOfTrialSpinConfiguration () {
+    func calculateEnergySpinConfiguration () {
         let N = Int(Num)!
-        var trialEnergy: Double = 0.0
+        //really spinConfiguration but didnt want to change everything
+        var trialConfiguration = mySpins.spinConfiguration
         
-        for i in 1...N {
-            let trialEnergyValue = 
-            trialEnergy = trialEnergy +
+        for j in 0...(N-1) {
+            for i in 0...(N-1) {
+                if (i > 0 && i < (N-1) && j > 0 && j < (N-1)){
+                    let previousEnergyValue = -((trialConfiguration[i][j]*trialConfiguration[i+1][j]) + (trialConfiguration[i][j]*trialConfiguration[i][j-1]) + (trialConfiguration[i][j]*trialConfiguration[i-1][j]) +  (trialConfiguration[i][j]*trialConfiguration[i][j+1]) + (trialConfiguration[0][j]*trialConfiguration[N-1][j]) + (trialConfiguration[i][0]*trialConfiguration[i][N-1]))
+                    previousEnergy = previousEnergy + previousEnergyValue
+                }
+                else if (i == 0 && j == 0) {
+                    let previousEnergyValue = -((trialConfiguration[0][0]*trialConfiguration[1][0]) + (trialConfiguration[0][0]*trialConfiguration[0][1]) + (trialConfiguration[0][0]*trialConfiguration[N-1][0]) + (trialConfiguration[0][0]*trialConfiguration[0][N-1]))
+                    previousEnergy = previousEnergy + previousEnergyValue
+                }
+                else if (i == 0 && j == (N-1)) {
+                    let previousEnergyValue = -((trialConfiguration[0][N-1]*trialConfiguration[1][N-1]) + (trialConfiguration[0][N-1]*trialConfiguration[0][N-2]) + (trialConfiguration[0][N-1]*trialConfiguration[0][0]) + (trialConfiguration[0][N-1]*trialConfiguration[N-1][N-1]))
+                    previousEnergy = previousEnergy + previousEnergyValue
+                }
+                else if (i == (N-1) && j == 0) {
+                    let previousEnergyValue = -((trialConfiguration[N-1][0]*trialConfiguration[0][0]) + (trialConfiguration[N-1][0]*trialConfiguration[N-2][0]) + (trialConfiguration[N-1][0]*trialConfiguration[N-1][1]) + (trialConfiguration[N-1][0]*trialConfiguration[N-1][N-1]))
+                    previousEnergy = previousEnergy + previousEnergyValue
+                }
+                else if (i == (N-1) && j == (N-1)) {
+                    let previousEnergyValue = -((trialConfiguration[N-1][N-1]*trialConfiguration[N-2][N-1]) + (trialConfiguration[N-1][N-1]*trialConfiguration[N-1][N-2]) + (trialConfiguration[N-1][N-1]*trialConfiguration[N-1][0]) + (trialConfiguration[N-1][N-1]*trialConfiguration[0][N-1]))
+                }
+            }
         }
+        print("Previous Energy:")
+        print(previousEnergy)
+    }
+    
+    func calculatePossibleEnergies () {
+        let N = Int(Num)!
+        var energyValue: Double = 0.0
+        
+        for E in 0...N {
+            energyValue = Double(4*E) - Double(2*N)
+            myEnergy.possibleEnergyArray.append(energyValue)
+            print(myEnergy.possibleEnergyArray.count)
+        }
+    }
+    
+    func calculateGIndexOfTrialFromPossibleEnergies () -> Int {
+        var gIndexTrial: Int = 0
+        gIndexTrial = myEnergy.possibleEnergyArray.firstIndex(of: newEnergy)!
+        return gIndexTrial
+    }
+    
+    func calculateGIndexOfPreviousFromPossibleEnergies () -> Int {
+        var gIndexPrevious: Int = 0
+        gIndexPrevious = myEnergy.possibleEnergyArray.firstIndex(of: previousEnergy)!
+        return gIndexPrevious
     }
     
     func calculateProbabilityOfAcceptance () -> Double {
@@ -185,32 +259,52 @@ struct ContentView: View {
         return P
     }
     
-    func calculateEnergyOfTrialConfiguration2D (x: Int, J: Int, trialConfiguration: [[Double]]) {
-        let N = Double(Num)!
-        let upperLimit = sqrt(N)
-        let upperLimitInteger = Int(upperLimit)
-        trialEnergy = 0.0
+    func calculateDensityOfStatesCheck () {
+        var trialConfiguration = calculateTrialConfiguration2D()
+        var P = calculateProbabilityOfAcceptance()
+        var gIndexTrial = calculateGIndexOfTrialFromPossibleEnergies()
+        var gIndexPrevious = calculateGIndexOfPreviousFromPossibleEnergies()
+        let uniformRandomNumber = Double.random(in: 0...1)
+        let f = 1.0
         
-        let J = Double(J)
-        let eValue = 2.7182818284590452353602874713
-        // hbarc in eV*Angstroms
-        let hbarc = 1973.269804
-        // mass of electron in eVc^2
-        let m = 510998.95000
-        let g = Double(g)!
-        let bohrMagneton = (eValue*hbarc)/(2.0*m)
-        let B = Double(B)!
-        
-        if (x > 0) {
-            for j in 1...upperLimitInteger {
-                for i in 1...(upperLimitInteger - 1) {
-                    let trialEnergyValue = -J*(trialConfiguration[j-1][i-1]*trialConfiguration[j-1][i]) - (B*bohrMagneton*trialConfiguration[j-1][i])
-                    trialEnergy = trialEnergy + trialEnergyValue
-                }
+        if (myDensityOfStates.arbitraryDensityOfStates[gIndexTrial] <= myDensityOfStates.arbitraryDensityOfStates[gIndexPrevious]) {
+            
+            mySpins.spinConfiguration = trialConfiguration
+            myDensityOfStates.arbitraryDensityOfStates[gIndexTrial] += 1
+            myDensityOfStates.arbitraryDensityOfStates[gIndexTrial] = f*myDensityOfStates.arbitraryDensityOfStates[gIndexTrial]
+            myEnergy.energy.append(newEnergy)
+            print("Trial Accepted")
+        }
+        else if (myDensityOfStates.arbitraryDensityOfStates[gIndexTrial] > myDensityOfStates.arbitraryDensityOfStates[gIndexPrevious]) {
+            if (P >= uniformRandomNumber) {
+                
+                mySpins.spinConfiguration = trialConfiguration
+                myDensityOfStates.arbitraryDensityOfStates[gIndexTrial] += 1
+                myDensityOfStates.arbitraryDensityOfStates[gIndexTrial] = f*myDensityOfStates.arbitraryDensityOfStates[gIndexTrial]
+                myEnergy.energy.append(newEnergy)
+                print("Trial Accepted")
+            }
+            else if (P < uniformRandomNumber) {
+                myEnergy.energy.append(previousEnergy)
+                print("Trial Rejected")
             }
         }
-        print("Trial Energy:")
-        print(trialEnergy)
+    }
+    // g(Ea(k+1)) --> f*g(Ea(k+1))
+    func calculateDensityOfStatesModification () {
+        let f = 1.0
+        
+        for i in 0...(myDensityOfStates.arbitraryDensityOfStates.count - 1) {
+            myDensityOfStates.arbitraryDensityOfStates[i] = f*myDensityOfStates.arbitraryDensityOfStates[i]
+        }
+    }
+    
+    func calculateWangLandau () {
+        calculateColdSpinConfiguration2D()
+        calculateArbitraryDensityOfStates()
+        calculateEnergySpinConfiguration()
+        calculatePossibleEnergies()
+        calculateDensityOfStatesCheck()
     }
 }
 

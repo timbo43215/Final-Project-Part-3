@@ -9,6 +9,6 @@ import Foundation
 
 class Energy: ObservableObject {
     
-    @Published var Energy: [[Double]] = []
-    @Published var energy1D: [Double] = []
+    @Published var possibleEnergyArray: [Double] = []
+    @Published var energy: [Double] = []
 }
