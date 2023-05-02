@@ -54,9 +54,9 @@ class TwoDMagnet: ObservableObject {
         }
         
         if (isThereAnythingInMyVariable == true) {
-            for y in 0..<(upperLimitInteger){
+            for y in 0..<(upperLimitInteger-1){
                 
-                for x in 0..<(upperLimitInteger) {
+                for x in 0..<(upperLimitInteger-1) {
                     
                     if (spinConfiguration![x][y] == 0.5) {
                         currentSpinValue = true

@@ -9,8 +9,5 @@ import Foundation
 
 class Spins: ObservableObject {
     
-    @Published var densityOfStates: [Double] = []
-    @Published var trialSpinConfiguration: [[Double]] = []
     @Published var spinConfiguration: [[Double]] = []
-    @Published var timeComponent: [[Double]] = []
 }

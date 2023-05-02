@@ -9,6 +9,6 @@ import Foundation
 
 class DensityOfStates: ObservableObject {
     
-    @Published var arbitraryDensityOfStates: [Double] = []
+    @Published var densityOfStates: [Double] = []
 
 }
