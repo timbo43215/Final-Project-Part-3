@@ -9,64 +9,87 @@ import SwiftUI
 import Foundation
 
 class TwoDMagnet: ObservableObject {
-    //var spins = Set<Spin>()
-    var spins :[Spin] = []
-    var spinConfiguration: [[Double]]?
-    
-    func setup(N: Int, isThereAnythingInMyVariable: Bool){
-        let N = Double(N)
-        let upperLimit = sqrt(N)
-        let upperLimitInteger = Int(upperLimit)
-        var currentSpinValue = true
-        var isThereAnythingInMyVariable: Bool = false
         
-        if (spinConfiguration != nil) {
-            isThereAnythingInMyVariable = true
-        }
+        @ObservedObject var plotSpinConfiguration = Spins()
         
-        for y in 0..<(upperLimitInteger - 1){
+        func setup(number: Int){
             
-            for x in 0..<(upperLimitInteger - 1){
-                                
-                if (spinConfiguration![x][y] == 0.5) {
-                    currentSpinValue = true
+            for y in 0..<(number){
+                
+                for x in 0..<number{
+                    
+                    plotSpinConfiguration.plotSpinConfiguration.append(Spin(x: Double(x), y: Double(y), spin: true))
+                    
                 }
-                else {
-                    currentSpinValue = false
-                }
-                    spins.append(Spin(x: Double(x), y: Double(y), spin: currentSpinValue))
+                
             }
+        }
+
+        func update(to date: Date) {
             
         }
     }
 
-    func update(to date: Date, N: Int, isThereAnythingInMyVariable: Bool) {
-        //print("Spin Configuration in Update:")
-        //print(spinConfiguration)
-        let N = Double(N)
-        let upperLimit = sqrt(N)
-        let upperLimitInteger = Int(upperLimit)
-        var currentSpinValue = true
-        var isThereAnythingInMyVariable: Bool = false
-                
-        if (spinConfiguration != nil) {
-            isThereAnythingInMyVariable = true
-        }
-        
-        if (isThereAnythingInMyVariable == true) {
-            for y in 0..<(upperLimitInteger-1){
-                
-                for x in 0..<(upperLimitInteger-1) {
-                    
-                    if (spinConfiguration![x][y] == 0.5) {
-                        currentSpinValue = true
-                    }
-                    else {
-                        currentSpinValue = false
-                    }
-                    spins.append(Spin(x: Double(x), y: Double(y), spin: currentSpinValue))
-                }
-            }
-        }
-    }
-}
+
+//class TwoDMagnet: ObservableObject {
+    //var spins = Set<Spin>()
+//    var spins :[Spin] = []
+//    var spinConfiguration: [[Double]]?
+//
+//    func setup(N: Int, isThereAnythingInMyVariable: Bool){
+//        let N = Double(N)
+//        let upperLimit = sqrt(N)
+//        let upperLimitInteger = Int(upperLimit)
+//        var currentSpinValue = true
+//        var isThereAnythingInMyVariable: Bool = false
+//
+//        if (spinConfiguration != nil) {
+//            isThereAnythingInMyVariable = true
+//        }
+//
+//        for y in 0..<(upperLimitInteger - 1){
+//
+//            for x in 0..<(upperLimitInteger - 1){
+//
+//                if (spinConfiguration![x][y] == 0.5) {
+//                    currentSpinValue = true
+//                }
+//                else {
+//                    currentSpinValue = false
+//                }
+//                    spins.append(Spin(x: Double(x), y: Double(y), spin: currentSpinValue))
+//            }
+//
+//        }
+//    }
+//
+//    func update(to date: Date, N: Int, isThereAnythingInMyVariable: Bool) {
+//        //print("Spin Configuration in Update:")
+//        //print(spinConfiguration)
+//        let N = Double(N)
+//        let upperLimit = sqrt(N)
+//        let upperLimitInteger = Int(upperLimit)
+//        var currentSpinValue = true
+//        var isThereAnythingInMyVariable: Bool = false
+//
+//        if (spinConfiguration != nil) {
+//            isThereAnythingInMyVariable = true
+//        }
+//
+//        if (isThereAnythingInMyVariable == true) {
+//            for y in 0..<(upperLimitInteger-1){
+//
+//                for x in 0..<(upperLimitInteger-1) {
+//
+//                    if (spinConfiguration![x][y] == 0.5) {
+//                        currentSpinValue = true
+//                    }
+//                    else {
+//                        currentSpinValue = false
+//                    }
+//                    spins.append(Spin(x: Double(x), y: Double(y), spin: currentSpinValue))
+//                }
+//            }
+//        }
+//    }
+//}

@@ -10,4 +10,5 @@ import Foundation
 class Spins: ObservableObject {
     
     @Published var spinConfiguration: [[Double]] = []
+    @Published var plotSpinConfiguration: [Spin] = []
 }

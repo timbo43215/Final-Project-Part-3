@@ -11,4 +11,5 @@ class Energy: ObservableObject {
     
     @Published var possibleEnergyArray: [Double] = []
     @Published var energy: [Double] = []
+    @Published var deltaEValues: [Double] = []
 }
