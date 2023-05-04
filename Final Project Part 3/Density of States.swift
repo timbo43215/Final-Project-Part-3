@@ -9,6 +9,8 @@ import Foundation
 
 class DensityOfStates: ObservableObject {
     
-    @Published var densityOfStates: [Double] = []
+    @Published var lnDensityOfStates: [Double] = []
+    @Published var histogram: [Double] = []
+
 
 }

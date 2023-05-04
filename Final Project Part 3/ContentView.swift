@@ -19,7 +19,7 @@ struct ContentView: View {
     @State var J: String = "1.0"
     @State var g: String = "1.0"
     @State var B: String = "0.0"
-    @State var kT: String = "100.0"
+    @State var kT: String = "1.0"
     @State var randParticleX: Int = 0
     @State var randParticleY: Int = 0
     @State var potentialArray: [Double] = []
@@ -28,7 +28,8 @@ struct ContentView: View {
     @State var deltaE: Double = 0.0
     @State var newEnergy: Double = 0.0
     @State var particleValue: Int = 0
-    @State var f: Double = 1.0
+    @State var f: Double = Double.pi
+    @State var fTolerance: Double = 1e-8
     @State var stoppingPoint: Double = 10.0
     @State var histogramData = [DensityOfStatesHistogram]()
     @State var trialConfigurationForCheck: [[Double]] = []
@@ -36,149 +37,155 @@ struct ContentView: View {
     @StateObject var myEnergy = Energy()
     @StateObject var myDensityOfStates = DensityOfStates()
     @State var myDensityOfStatesHistogram = [DensityOfStatesHistogram]()
-//    @StateObject var myPotential = Potential()
+    //    @StateObject var myPotential = Potential()
     @StateObject var twoDMagnet = TwoDMagnet()
     let upColor = Color(red: 0.25, green: 0.5, blue: 0.75)
     let downColor = Color(red: 0.75, green: 0.5, blue: 0.25)
     @State var spinWidth = 25
     
     var body: some View {
-        HStack {
-            VStack {
-                
-                Chart {
-                    ForEach(histogramData, id: \.energies) { item in
-                        BarMark(
-                            x: .value("Energy", item.energies),
-                            y: .value("Density of States", item.densityOfStates)
-                        )
-                    }
-                }
-                .padding()
-                
-                
-                HStack {
-                    Text("N:")
-                    TextField("N:", text: $Num)
-                        .padding()
-                }
-                HStack {
-                    Text("kT:")
-                    TextField("kT:", text: $kT)
-                        .padding()
-                }
-                //                Button(action: {
-                //                    self.calculateColdSpinConfiguration2D()})
-                //                {Text("Calculate Cold Spin Configuration")}
-                //                Button(action: {
-                //                    self.calculateArbitraryDensityOfStates()})
-                //                {Text("Calculate Density of States")}
-                //                Button(action: {
-                //                    self.calculateTrialConfiguration2D()})
-                //                {Text("Calculate Trial Configuration")}
-                //                Button(action: {
-                //                    self.calculateWangLandau()})
-                //                {Text("Calculate Wang Landau")}
-                //                Button(action: {
-                //                    self.calculateArbitraryMetropolisAlgorithm2D()})
-                //                {Text("Calculate Cold Metropolis Algorithm")}
-
-            }
-            
-            VStack(){
-                TimelineView(.animation) { timeline in
-                    Canvas { context, size in
-                        twoDMagnet.update(to: timeline.date)
-                        
-                        for spin in twoDMagnet.plotSpinConfiguration.plotSpinConfiguration {
-                            let rect = CGRect(x: spin.x * (size.width/CGFloat(spinWidth)), y: spin.y * (size.height/CGFloat(spinWidth)), width: (size.height/CGFloat(spinWidth)), height: (size.height/CGFloat(spinWidth)))
-                            let shape = Rectangle().path(in: rect)
-                            if (spin.spin){
-                                context.fill(shape, with: .color(upColor))}
-                            else{
-                                context.fill(shape, with: .color(downColor))
-                            }
+        VStack {
+            HStack {
+                VStack {
+                    Text("Density of States")
+                    Chart {
+                        ForEach(histogramData, id: \.energies) { item in
+                            BarMark(
+                                x: .value("Energy", item.energies),
+                                y: .value("Density of States", item.densityOfStates)
+                            )
                         }
                     }
+                    .padding()
                 }
-                .background(.black)
-                .ignoresSafeArea()
-                .padding()
-                
-                
-                //                Button("Start from Cold", action: setupColdSpins)
-                //   Button("Start from Arbitrary", action: setupArbitrarySpins)
-                
-                Button("Start from Cold", action: setupSpinsfromCold)
-                Button("SpinMeCold", action: changeSpinsfromCold)
-                
-                Button("Start from Arbitrary", action: setupSpinsfromArbitrary)
-                Button("SpinMeArbitrary", action: changeSpinsfromArbitrary)
+                VStack {
+                    Text("Histogram")
+                    Chart {
+                        ForEach(histogramData, id: \.energies) { item in
+                            BarMark(
+                                x: .value("Energy", item.energies),
+                                y: .value("Histogram", item.histogram)
+                            )
+                        }
+                    }
+                    .padding()
+                }
             }
+            
+            HStack {
+                Text("N:")
+                TextField("N:", text: $Num)
+                    .padding()
+            }
+            HStack {
+                Text("kT:")
+                TextField("kT:", text: $kT)
+                    .padding()
+            }
+            //                Button(action: {
+            //                    self.calculateColdSpinConfiguration2D()})
+            //                {Text("Calculate Cold Spin Configuration")}
+            
         }
-        }
-    
-    func setupSpinsfromCold(){
-        let N = Double(Num)!
-        spinWidth = Int(N)
-        var currentSpinValue = true
-        self.calculateColdSpinConfiguration2D()
         
-        for j in 0..<spinWidth {
-            for i in 0..<spinWidth {
-                if (mySpins.spinConfiguration[i][j] == 0.5) {
-                                    currentSpinValue = true
-                                }
-                                else {
-                                    currentSpinValue = false
-                                }
-                twoDMagnet.plotSpinConfiguration.plotSpinConfiguration.append(Spin(x: Double(i), y: Double(j), spin: currentSpinValue))
-            }
-        }
-    }
-    
-    func changeSpinsfromCold(){
-        Task{
-            await self.calculateWangLandau()
-            }
-        }
-    
-    func setupSpinsfromArbitrary(){
-        let N = Double(Num)!
-        spinWidth = Int(N)
-        var currentSpinValue = true
-        self.calculateArbitrarySpinConfiguration2D()
+        //            VStack(){
+        //                TimelineView(.animation) { timeline in
+        //                    Canvas { context, size in
+        //                        twoDMagnet.update(to: timeline.date)
+        //
+        //                        for spin in twoDMagnet.plotSpinConfiguration.plotSpinConfiguration {
+        //                            let rect = CGRect(x: spin.x * (size.width/CGFloat(spinWidth)), y: spin.y * (size.height/CGFloat(spinWidth)), width: (size.height/CGFloat(spinWidth)), height: (size.height/CGFloat(spinWidth)))
+        //                            let shape = Rectangle().path(in: rect)
+        //                            if (spin.spin){
+        //                                context.fill(shape, with: .color(upColor))}
+        //                            else{
+        //                                context.fill(shape, with: .color(downColor))
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //                .background(.black)
+        //                .ignoresSafeArea()
+        //                .padding()
         
-        for j in 0..<spinWidth {
-            for i in 0..<spinWidth {
-                if (mySpins.spinConfiguration[i][j] == 0.5) {
-                                    currentSpinValue = true
-                                }
-                                else {
-                                    currentSpinValue = false
-                                }
-                twoDMagnet.plotSpinConfiguration.plotSpinConfiguration.append(Spin(x: Double(i), y: Double(j), spin: currentSpinValue))
-            }
-        }
+        
+        //                Button("Start from Cold", action: setupColdSpins)
+        //   Button("Start from Arbitrary", action: setupArbitrarySpins)
+        
+        Button("Start from Cold", action: calculateWangLandaufromCold)
+        
+        //        Button("Start from Arbitrary", action: calculateWangLandaufromArbitrary)
+        
+        Button("Clear", action: clearParameters)
     }
     
-    func changeSpinsfromArbitrary(){
-        Task{
-            await self.calculateWangLandau()
-            }
-        }
     
-    func setupColdSpins() -> [[Double]] {
-        let N = Double(Num)!
-        self.clearParameters ()
-        self.calculateColdSpinConfiguration2D()
-        return mySpins.spinConfiguration
-    }
+    //    func setupSpinsfromCold(){
+    //        let N = Double(Num)!
+    //        spinWidth = Int(N)
+    //        var currentSpinValue = true
+    //        self.calculateColdSpinConfiguration2D()
+    //
+    //        for j in 0..<spinWidth {
+    //            for i in 0..<spinWidth {
+    //                if (mySpins.spinConfiguration[i][j] == 1.0) {
+    //                                    currentSpinValue = true
+    //                                }
+    //                                else {
+    //                                    currentSpinValue = false
+    //                                }
+    //                twoDMagnet.plotSpinConfiguration.plotSpinConfiguration.append(Spin(x: Double(i), y: Double(j), spin: currentSpinValue))
+    //            }
+    //        }
+    //    }
+    //
+    //    func changeSpinsfromCold(){
+    //        Task{
+    //            await self.calculateWangLandau()
+    //            }
+    //        }
+    //
+    //    func setupSpinsfromArbitrary(){
+    //        let N = Double(Num)!
+    //        spinWidth = Int(N)
+    //        var currentSpinValue = true
+    //        self.calculateArbitrarySpinConfiguration2D()
+    //
+    //        for j in 0..<spinWidth {
+    //            for i in 0..<spinWidth {
+    //                if (mySpins.spinConfiguration[i][j] == 1.0) {
+    //                                    currentSpinValue = true
+    //                                }
+    //                                else {
+    //                                    currentSpinValue = false
+    //                                }
+    //                twoDMagnet.plotSpinConfiguration.plotSpinConfiguration.append(Spin(x: Double(i), y: Double(j), spin: currentSpinValue))
+    //            }
+    //        }
+    //    }
+    //
+    //    func changeSpinsfromArbitrary(){
+    //        Task{
+    //            await self.calculateWangLandau()
+    //            }
+    //        }
+    //
+    //    func setupColdSpins() -> [[Double]] {
+    //        let N = Double(Num)!
+    //        self.clearParameters ()
+    //        self.calculateColdSpinConfiguration2D()
+    //        return mySpins.spinConfiguration
+    //    }
     
     func clearParameters () {
         myEnergy.energy = []
+        myEnergy.possibleEnergyArray = []
+        myEnergy.deltaEValues = []
         mySpins.spinConfiguration = []
-        myDensityOfStates.densityOfStates = []
+        mySpins.plotSpinConfiguration = []
+        myDensityOfStates.lnDensityOfStates = []
+        histogramData = []
+        //        twoDMagnet.plotSpinConfiguration = []
     }
     
     func calculateColdSpinConfiguration2D (){
@@ -190,7 +197,7 @@ struct ContentView: View {
                 if (j > 1) {
                     spinValue.removeLast()
                 }
-                spinValue.append(-1.0)
+                spinValue.append(1.0)
             }
             mySpins.spinConfiguration.append(spinValue)
         }
@@ -216,7 +223,7 @@ struct ContentView: View {
         //print(mySpins.spinConfiguration)
     }
     
-    func calculateTrialConfiguration2D () -> [[Double]] {
+    func calculateTrialConfiguration2D () {
         particleValue = 0
         let N = Int(Num)!
         randParticleX = Int.random(in: 0...(N - 1))
@@ -224,19 +231,11 @@ struct ContentView: View {
         var trialConfiguration = mySpins.spinConfiguration
         particleValue = (randParticleX*N) + randParticleY
         
-        if (trialConfiguration[randParticleX][randParticleY] == 1.0) {
-            trialConfiguration[randParticleX][randParticleY] = -1.0
-        }
-        else {
-            trialConfiguration[randParticleX][randParticleY] = 1.0
-        }
+        trialConfiguration[randParticleX][randParticleY] = trialConfiguration[randParticleX][randParticleY]*(-1.0)
         //print(trialConfiguration)
         trialConfigurationForCheck = trialConfiguration
         
-        print("Particle i Value for g(E):")
-        print(particleValue)
         print(trialConfiguration)
-        return trialConfiguration
     }
     
     func calculateDeltaE () -> Double {
@@ -286,56 +285,66 @@ struct ContentView: View {
         return deltaE
     }
     
-    func calculateArbitraryDensityOfStates () {
-        let N = Int(Num)!
-//        let upperLimit = pow(N, 2.0)
+    func calculateColdDensityOfStates () {
+        let N = Double(Num)!
+        let totalSpins = pow(N, 2.0)
+        let spinTotal = Int(totalSpins)
         
-//indices 0...(2^N-1)
-        for i in 0...N {
-// 0.0 because ln(1) = 0 and in ln form
-            let gLogValue = log(1.0)
-            myDensityOfStates.densityOfStates.append(1.0)
+        for i in 0...spinTotal {
+            // 0.0 because ln(1) = 0 and in ln form
+            myDensityOfStates.lnDensityOfStates.append(0.0)
         }
         print("Density of States: ")
-        print(myDensityOfStates.densityOfStates)
+        print(myDensityOfStates.lnDensityOfStates)
+    }
+    
+    func calculateHistogramData () {
+        let N = Double(Num)!
+        let totalSpins = pow(N, 2.0)
+        let spinTotal = Int(totalSpins)
+        
+        for i in 0...spinTotal {
+            // 0.0 because ln(1) = 0 and in ln form
+            myDensityOfStates.histogram.append(0.0)
+        }
+        print("Histogram: ")
+        print(myDensityOfStates.histogram)
     }
     
     // Adds 1 to g(newEnergy) and multiplies by f in case need to change
     // Do this on acceptance of trial
     
-    func calculateTrialDensityOfStates (gIndexTrial: Int) -> [Double] {
-        let N = Int(Num)!
-        var trialDensityOfStates = myDensityOfStates.densityOfStates
-//indices 0...(2^N-1)
-        trialDensityOfStates[gIndexTrial] += (1.0)
-        for i in 0...N {
-            trialDensityOfStates[i] = f*trialDensityOfStates[i]
-        }
+    func calculateLnTrialDensityOfStates (gIndexTrial: Int) -> [Double] {
+        let N = Double(Num)!
+        let totalSpins = pow(N, 2.0)
+        let spinTotal = Int(totalSpins)
+        var lnTrialDensityOfStates = myDensityOfStates.lnDensityOfStates
+        //indices 0...(2^N-1)
+        lnTrialDensityOfStates[gIndexTrial] = lnTrialDensityOfStates[gIndexTrial] + log(f)
+        
         print("Density of States:")
-        print(trialDensityOfStates)
-        return trialDensityOfStates
-        }
+        print(lnTrialDensityOfStates)
+        return lnTrialDensityOfStates
+    }
     
     func calculatePreviousEnergySpinConfiguration (x: Int) {
-
-        if x == 0 {
-
-        }
-        else if x > 0 {
-            
-            previousEnergy = myEnergy.energy[x-1]
+        
+        if x > 0 {
+            previousEnergy = myEnergy.energy[x]
             print("Previous Energy:")
-            print(myEnergy.energy[x-1])
+            print(myEnergy.energy[x])
         }
     }
     
     
     func calculatePossibleEnergies () {
-        let N = Int(Num)!
+        let N = Double(Num)!
+        let totalSpins = pow(N, 2.0)
+        let spinTotal = Int(totalSpins)
         var energyValue: Double = 0.0
         
-        for E in 0...N {
-            energyValue = Double(4*E) - Double(2*N)
+        for Eprime in 0...spinTotal {
+            energyValue = Double(4*Eprime) - Double(2*spinTotal)
             myEnergy.possibleEnergyArray.append(energyValue)
         }
         
@@ -359,9 +368,10 @@ struct ContentView: View {
     
     func calculateProbabilityOfAcceptance (gIndexTrial: Int, gIndexPrevious: Int) -> Double {
         var P: Double = 0.0
-        var trialDensityOfStates = calculateTrialDensityOfStates(gIndexTrial: gIndexTrial)
+        var lnTrialDensityOfStates = calculateLnTrialDensityOfStates(gIndexTrial: gIndexTrial)
         
-            P = myDensityOfStates.densityOfStates[gIndexPrevious]/trialDensityOfStates[gIndexTrial]
+        
+        P = exp(myDensityOfStates.lnDensityOfStates[gIndexPrevious] - myDensityOfStates.lnDensityOfStates[gIndexTrial])
         
         return P
     }
@@ -369,98 +379,125 @@ struct ContentView: View {
     func calculateDensityOfStatesCheck () {
         let gIndexTrial = calculateGIndexOfTrialFromPossibleEnergies()
         let gIndexPrevious = calculateGIndexOfPreviousFromPossibleEnergies()
-        let P = calculateProbabilityOfAcceptance(gIndexTrial: gIndexTrial, gIndexPrevious: gIndexPrevious)
         let uniformRandomNumber = Double.random(in: 0...1)
         
-        if (myDensityOfStates.densityOfStates[gIndexTrial] <= myDensityOfStates.densityOfStates[gIndexPrevious]) {
+        if (myDensityOfStates.lnDensityOfStates[gIndexTrial] <= myDensityOfStates.lnDensityOfStates[gIndexPrevious]) {
             
             // Make the trial configuration the new spin configuration
             mySpins.spinConfiguration = trialConfigurationForCheck
             // Add 1 to Density of States and Multiply by f
-            myDensityOfStates.densityOfStates[gIndexTrial] += 1.0
-            for i in 0..<myDensityOfStates.densityOfStates.count {
-                myDensityOfStates.densityOfStates[i] = f*myDensityOfStates.densityOfStates[i]
-            }
+            myDensityOfStates.histogram[gIndexTrial] += 1.0
+            myDensityOfStates.lnDensityOfStates[gIndexTrial] = myDensityOfStates.lnDensityOfStates[gIndexTrial] + log(f)
+            //            for i in 0..<myDensityOfStates.densityOfStates.count {
+            //                myDensityOfStates.densityOfStates[i] = myDensityOfStates.densityOfStates[i] + log(f)
+            //            }
             // Append the energy of the trial configuration to the energy array
             myEnergy.energy.append(newEnergy)
             print("Trial Accepted")
         }
-        else if (myDensityOfStates.densityOfStates[gIndexTrial] > myDensityOfStates.densityOfStates[gIndexPrevious]) {
+        else if (myDensityOfStates.lnDensityOfStates[gIndexTrial] > myDensityOfStates.lnDensityOfStates[gIndexPrevious]) {
+            let P = calculateProbabilityOfAcceptance(gIndexTrial: gIndexTrial, gIndexPrevious: gIndexPrevious)
             if (P >= uniformRandomNumber) {
                 
                 // Make the trial configuration the new spin configuration
                 mySpins.spinConfiguration = trialConfigurationForCheck
                 // Add 1 to Density of States and Multiply by f
-                myDensityOfStates.densityOfStates[gIndexTrial] += 1
-                for i in 0..<myDensityOfStates.densityOfStates.count {
-                    myDensityOfStates.densityOfStates[i] = f*myDensityOfStates.densityOfStates[i]
-                }
+                myDensityOfStates.histogram[gIndexTrial] += 1.0
+                myDensityOfStates.lnDensityOfStates[gIndexTrial] = myDensityOfStates.lnDensityOfStates[gIndexTrial] + log(f)
+                //                for i in 0..<myDensityOfStates.densityOfStates.count {
+                //                    myDensityOfStates.densityOfStates[i] = myDensityOfStates.densityOfStates[i] + log(f)
+                //                }
                 // Append the energy of the trial configuration to the energy array
                 myEnergy.energy.append(newEnergy)
                 print("Trial Accepted")
             }
             else if (P < uniformRandomNumber) {
+                myEnergy.energy.append(previousEnergy)
                 print("Trial Rejected")
             }
         }
     }
     
-    func calculateWangLandau () async {
+    func calculateWangLandaufromCold () {
         myEnergy.energy = []
         myEnergy.possibleEnergyArray = []
         let N = Int(Num)!
-        var currentSpinValue = true
-
+        calculateColdSpinConfiguration2D()
         calculatePossibleEnergies()
-        calculateArbitraryDensityOfStates()
+        calculateColdDensityOfStates()
+        calculateHistogramData()
+        let something = Double(N)
+        let totalSpins = pow(something, 2.0)
+        let spinTotal = Int(totalSpins)
+        previousEnergy = -2*totalSpins
+        myEnergy.energy.append(previousEnergy)
         
-        while stoppingPoint > 0.2 {
-            for x in 0...N {
+//       while f >= (1 + fTolerance) {
+        for x in 0...1000000 {
+                calculateTrialConfiguration2D()
                 calculatePreviousEnergySpinConfiguration(x: x)
-                if x == 0 {
-                    let N = Double(N)
-                    previousEnergy = -2*N
-                    myEnergy.energy.append(previousEnergy)
-                    myEnergy.deltaEValues.append(0.0)
-                }
-                else if x > 0 {
-                    calculateTrialConfiguration2D()
-                    deltaE = 0.0
-                    deltaE = calculateDeltaE()
-                    newEnergy = deltaE + previousEnergy
-                    calculateDensityOfStatesCheck()
-                    
-                    let densityMax: Double = myDensityOfStates.densityOfStates.max()!
-                    let densityMin: Double = myDensityOfStates.densityOfStates.min()!
-                    stoppingPoint = (densityMax - densityMin)/(densityMax + densityMin)
-                    
-                }
-                
-                await withTaskGroup(of: Void.self) { group in
-                    for j in 0..<spinWidth {
-                        for i in 0..<spinWidth {
-                            if (mySpins.spinConfiguration[i][j] == 0.5) {
-                                currentSpinValue = true
-                            }
-                            else {
-                                currentSpinValue = false
-                            }
-                            
-                            
-                            twoDMagnet.plotSpinConfiguration.plotSpinConfiguration.append(Spin(x: Double(i), y: Double(j), spin: currentSpinValue))
-                        }
-                    }
-                }
-                
-                for i in 0...(myEnergy.possibleEnergyArray.count - 1) {
-                    histogramData.append(DensityOfStatesHistogram(energies: myEnergy.possibleEnergyArray[i], densityOfStates: myDensityOfStates.densityOfStates[i]))
-                }
-        
-            }
+                deltaE = 0.0
+                deltaE = calculateDeltaE()
+                newEnergy = deltaE + previousEnergy
+                calculateDensityOfStatesCheck()
         }
+        
+        let densityMax: Double = myDensityOfStates.histogram.max()!
+        let densityMin: Double = myDensityOfStates.histogram.min()!
+        stoppingPoint = (densityMax - densityMin)/(densityMax + densityMin)
+        
+    if (stoppingPoint < 0.2) {
+        f = sqrt(f)
+    }
+        
+        for i in 0...(myEnergy.possibleEnergyArray.count - 1) {
+            
+            histogramData.append(DensityOfStatesHistogram(energies: myEnergy.possibleEnergyArray[i], densityOfStates: myDensityOfStates.lnDensityOfStates[i], histogram: myDensityOfStates.histogram[i]))
+        }
+//       }
         print("While Loop is Over!")
     }
 }
+//    func calculateWangLandaufromArbitrary () {
+//        myEnergy.energy = []
+//        myEnergy.possibleEnergyArray = []
+//        myDensityOfStates.lnDensityOfStates = []
+//        let N = Int(Num)!
+//        calculateArbitrarySpinConfiguration2D()
+//        calculatePossibleEnergies()
+//        calculateColdDensityOfStates()
+//        calculateHistogramData()
+//        let something = Double(N)
+//        let totalSpins = pow(something, 2.0)
+//        let spinTotal = Int(totalSpins)
+//        previousEnergy = -2*totalSpins
+//        myEnergy.energy.append(previousEnergy)
+//        myEnergy.deltaEValues.append(0.0)
+//
+//        while stoppingPoint > 0.2 {
+//            for x in 0...spinTotal {
+//                calculateTrialConfiguration2D()
+//                calculatePreviousEnergySpinConfiguration(x: x)
+//                deltaE = 0.0
+//                deltaE = calculateDeltaE()
+//                newEnergy = deltaE + previousEnergy
+//                calculateDensityOfStatesCheck()
+//
+//                let densityMax: Double = myDensityOfStates.lnDensityOfStates.max()!
+//                let densityMin: Double = myDensityOfStates.lnDensityOfStates.min()!
+//                stoppingPoint = (densityMax - densityMin)/(densityMax + densityMin)
+//
+//                for i in 0...(myEnergy.possibleEnergyArray.count - 1) {
+//                    histogramData.append(DensityOfStatesHistogram(energies: myEnergy.possibleEnergyArray[i], densityOfStates: myDensityOfStates.lnDensityOfStates[i], histogram: myDensityOfStates.histogram[i]))
+//                }
+//
+//            }
+//        }
+//
+//
+//        print("While Loop is Over!")
+//    }
+//}
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {

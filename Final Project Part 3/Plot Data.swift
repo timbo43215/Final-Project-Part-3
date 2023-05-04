@@ -12,5 +12,6 @@ struct DensityOfStatesHistogram: Identifiable {
     var id: Double { energies }
     var energies: Double
     var densityOfStates: Double
+    var histogram: Double
     
 }
