@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  Final Project Part 3
 //
-//  Created by IIT PHYS 440 on 4/28/23.
+//  Created by Tim Stack on 4/28/23.
 //
 
 import SwiftUI
@@ -82,11 +82,8 @@ struct ContentView: View {
                     .padding()
                 
                 Button("Start", action: calculateWangLandaufromCold)
+                    .padding()
             }
-            //                Button(action: {
-            //                    self.calculateColdSpinConfiguration2D()})
-            //                {Text("Calculate Cold Spin Configuration")}
-            
         }
     }
     
