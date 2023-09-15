@@ -24,19 +24,22 @@ struct ContentView: View {
     @State var randParticleY: Int = 0
     @State var potentialArray: [Double] = []
     @State var previousEnergy: Double = 0.0
+    @State var previousMag: Double = 0.0
     @State var energy: Double = 0.0
     @State var deltaE: Double = 0.0
+    @State var deltaM: Double = 0.0
     @State var newEnergy: Double = 0.0
+    @State var newMag: Double = 0.0
     @State var particleValue: Int = 0
     @State var f: Double = exp(1.0)
-    @State var fTolerance: Double = 1e-5
+    @State var fTolerance: Double = 1e-2
     @State var stoppingPoint: Double = 10.0
     @State var histogramData = [DensityOfStatesHistogram]()
     @State var trialConfigurationForCheck: [[Double]] = []
     @StateObject var mySpins = Spins()
     @StateObject var myEnergy = Energy()
     @StateObject var myDensityOfStates = DensityOfStates()
-    @State var myDensityOfStatesHistogram = [DensityOfStatesHistogram]()
+    //@State var myDensityOfStatesHistogram = [DensityOfStatesHistogram]()
     //    @StateObject var myPotential = Potential()
     @StateObject var twoDMagnet = TwoDMagnet()
     let upColor = Color(red: 0.25, green: 0.5, blue: 0.75)
@@ -133,7 +136,9 @@ struct ContentView: View {
         //print(mySpins.spinConfiguration)
     }
     
-    func calculateTrialConfiguration2D () {
+    func calculateTrialConfiguration2D () -> Bool {
+        
+        var isNegative = false
         particleValue = 0
         let N = Int(Num)!
         randParticleX = Int.random(in: 0...(N - 1))
@@ -141,11 +146,17 @@ struct ContentView: View {
         var trialConfiguration = mySpins.spinConfiguration
         particleValue = (randParticleX*N) + randParticleY
         
+        if trialConfiguration[randParticleX][randParticleY] > 0 {
+            isNegative = true
+        }
+        
         trialConfiguration[randParticleX][randParticleY] = trialConfiguration[randParticleX][randParticleY]*(-1.0)
         //print(trialConfiguration)
         trialConfigurationForCheck = trialConfiguration
         
-        // print(trialConfiguration)
+         print(trialConfiguration)
+        
+        return isNegative
     }
     
     func calculateDeltaE () -> Double {
@@ -241,6 +252,7 @@ struct ContentView: View {
         
         if x > 0 {
             previousEnergy = myEnergy.energy[x]
+            previousMag = myEnergy.magnetism[x]
             //    print("Previous Energy:")
             //    print(myEnergy.energy[x])
         }
@@ -303,6 +315,11 @@ struct ContentView: View {
             //            }
             // Append the energy of the trial configuration to the energy array
             myEnergy.energy.append(newEnergy)
+            myEnergy.magnetism.append(newMag)
+            
+            let bob = (E: newEnergy, M:newMag)
+            print(bob)
+            myEnergy.energyAndMagValues.append(bob)
 //            print("Trial Accepted")
         }
         else if (myDensityOfStates.lnDensityOfStates[gIndexTrial] > myDensityOfStates.lnDensityOfStates[gIndexPrevious]) {
@@ -319,7 +336,14 @@ struct ContentView: View {
                 //                }
                 // Append the energy of the trial configuration to the energy array
                 myEnergy.energy.append(newEnergy)
+                myEnergy.magnetism.append(newMag)
+                
+                let bob = (E: newEnergy, M:newMag)
+                print(bob)
+                myEnergy.energyAndMagValues.append(bob)
+                
 //                print("Trial Accepted")
+    
 //                print(myDensityOfStates.lnDensityOfStates)
             }
             else if (P < uniformRandomNumber) {
@@ -327,6 +351,11 @@ struct ContentView: View {
                 myDensityOfStates.histogram[gIndexPrevious] += 1.0
                 myDensityOfStates.lnDensityOfStates[gIndexPrevious] += log(f)
                 myEnergy.energy.append(previousEnergy)
+                myEnergy.magnetism.append(previousMag)
+                
+                let bob = (E: previousEnergy, M:previousMag)
+                print(bob)
+                myEnergy.energyAndMagValues.append(bob)
 //                print("Trial Rejected")
 //                print(myDensityOfStates.lnDensityOfStates)
                 
@@ -337,6 +366,8 @@ struct ContentView: View {
     func calculateWangLandaufromCold () {
         myEnergy.energy = []
         myEnergy.possibleEnergyArray = []
+        myEnergy.magnetism = []
+        myEnergy.deltaMValues = []
         let N = Int(Num)!
         calculateColdSpinConfiguration2D()
         calculatePossibleEnergies()
@@ -346,71 +377,92 @@ struct ContentView: View {
         let totalSpins = pow(something, 2.0)
         let spinTotal = Int(totalSpins)
         previousEnergy = -2*totalSpins
+        previousMag = totalSpins
         myEnergy.energy.append(previousEnergy)
+        myEnergy.magnetism.append(previousMag)
         myEnergy.deltaEValues.append(0.0)
-//        myDensityOfStates.lnDensityOfStates.append()
+        myEnergy.deltaMValues.append(0.0)
+        
+        myEnergy.energyAndMagValues.append((E:previousEnergy, M:previousMag))
+        //        myDensityOfStates.lnDensityOfStates.append()
         
         var x: Int = 0
         var containZeroes = true
         
         while f >= (1 + fTolerance) {
             // for x in 0...10000 {
-            calculateTrialConfiguration2D()
+            let isNegative = calculateTrialConfiguration2D()
             calculatePreviousEnergySpinConfiguration(x: x)
             deltaE = 0.0
             deltaE = calculateDeltaE()
             newEnergy = deltaE + previousEnergy
+            if isNegative {
+                
+                deltaM = -2.0
+            }
+            else{
+                
+                deltaM = 2.0
+            }
+            
+            newMag = previousMag + deltaM
+            
             calculateDensityOfStatesCheck()
             x += 1
             // }
             if (x.isMultiple(of: 50000) == true) {
                 
                 var currentMinimum = 10000000.0
+                var zeros = 0
                 // spinTotal = N^2
                 for i in 0...spinTotal {
                     if (myDensityOfStates.histogram[i] < currentMinimum) && i != 1 && i != (spinTotal-1) {
                         currentMinimum = myDensityOfStates.histogram[i]
+                        
+                    //Check if there are any zeros
+                        if abs(currentMinimum) <= 1e-12 {
+                            containZeroes = true
+                            zeros += 1
+                        }
+                        
+                        else {
+                            containZeroes = false
+                        }
                     }
-                    
-                    if abs(currentMinimum) <= 1e-12 {
-                        containZeroes = true
-                    }
-                    else {
-                        containZeroes = false
-                    }
-                    
-                    if (containZeroes == false) {
+                }
+                    if (zeros == 0) {
                         
                         let densityMax: Double = myDensityOfStates.histogram.max()!
-                        let densityMin = currentMinimum
+                        //let densityMin = currentMinimum
+                        let densityMin = getMin(value1: myDensityOfStates.histogram)
                         stoppingPoint = (densityMax - densityMin)/(densityMax + densityMin)
                         
-                        if (stoppingPoint < 0.2 && f >= (1 + fTolerance)) {
-                            f = sqrt(f)
-                            for i in 0..<myDensityOfStates.histogram.count {
-                                myDensityOfStates.histogram[i] = 0.0
+                        if (stoppingPoint >= 0.2) {
+                                f = sqrt(f)
+                                for i in 0..<myDensityOfStates.histogram.count {
+                                    myDensityOfStates.histogram[i] = 0.0
+                                currentMinimum = 0.0
                             }
-                            print(myDensityOfStates.lnDensityOfStates)
-                            print(f)
+                            //print(myDensityOfStates.lnDensityOfStates)
+                            print(String("f value: ") + String(f))
                             print(x)
                         }
                     }
                 }
             }
-            }
-    print("While Loop is Over!")
+        
+        print("Final Density of States Calculated!")
         var lnDOSForPlot = myDensityOfStates.lnDensityOfStates
         var BobArray :[Double] = []
         for i in 0..<(myDensityOfStates.lnDensityOfStates.count) {
             BobArray.append(lnDOSForPlot[i] - lnDOSForPlot[0] + log(2))
-// exp(lnDOSForPlot[i] - lnDOSForPlot[0] + log(2))
-// probably 24 or 25
+            // exp(lnDOSForPlot[i] - lnDOSForPlot[0] + log(2))             // probably 24 or 25
             if BobArray[i] < 0.0 {
                 BobArray[i] = 0.0
             }
         }
         for i in 0...(myEnergy.possibleEnergyArray.count - 1) {
-
+            
             histogramData.append(DensityOfStatesHistogram(energies: myEnergy.possibleEnergyArray[i], densityOfStates: BobArray[i], histogram: myDensityOfStates.histogram[i]))
         }
         print("Bob")
