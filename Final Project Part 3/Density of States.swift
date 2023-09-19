@@ -11,7 +11,8 @@ class DensityOfStates: ObservableObject {
     
     @Published var lnDensityOfStates: [Double] = []
     @Published var histogram: [Double] = []
-    @Published var densityOfStatesEnergyandMag: [Double] = []
+    @Published var DOSEnergyAndMag: [Double] = []
+    @Published var histogramEnergyAndMag: [Double] = []
     @Published var energyAndMags: [Double] = []
 
 

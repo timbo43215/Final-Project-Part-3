@@ -23,9 +23,6 @@
 		AB0E8CE229FC6D2C00220EFE /* Spin Struct.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0E8CE129FC6D2C00220EFE /* Spin Struct.swift */; };
 		AB0E8CE329FC6D2C00220EFE /* Spin Struct.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0E8CE129FC6D2C00220EFE /* Spin Struct.swift */; };
 		AB0E8CE429FC6D2C00220EFE /* Spin Struct.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0E8CE129FC6D2C00220EFE /* Spin Struct.swift */; };
-		AB0E8CE629FC6D4800220EFE /* twoDMagnet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0E8CE529FC6D4800220EFE /* twoDMagnet.swift */; };
-		AB0E8CE729FC6D4800220EFE /* twoDMagnet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0E8CE529FC6D4800220EFE /* twoDMagnet.swift */; };
-		AB0E8CE829FC6D4800220EFE /* twoDMagnet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0E8CE529FC6D4800220EFE /* twoDMagnet.swift */; };
 		AB0E8CEA29FC77B400220EFE /* Density of States.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0E8CE929FC77B400220EFE /* Density of States.swift */; };
 		AB0E8CEB29FC77B400220EFE /* Density of States.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0E8CE929FC77B400220EFE /* Density of States.swift */; };
 		AB0E8CEC29FC77B400220EFE /* Density of States.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0E8CE929FC77B400220EFE /* Density of States.swift */; };
@@ -57,7 +54,7 @@
 /* Begin PBXFileReference section */
 		AB0E8CAB29FC6CA300220EFE /* Final Project Part 3.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Final Project Part 3.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB0E8CAE29FC6CA300220EFE /* Final_Project_Part_3App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Final_Project_Part_3App.swift; sourceTree = "<group>"; };
-		AB0E8CB029FC6CA300220EFE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		AB0E8CB029FC6CA300220EFE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; usesTabs = 0; };
 		AB0E8CB229FC6CA300220EFE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AB0E8CB529FC6CA300220EFE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		AB0E8CB729FC6CA300220EFE /* Final_Project_Part_3.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Final_Project_Part_3.entitlements; sourceTree = "<group>"; };
@@ -69,7 +66,6 @@
 		AB0E8CD929FC6CF200220EFE /* Energy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Energy.swift; sourceTree = "<group>"; };
 		AB0E8CDD29FC6D0E00220EFE /* Spins.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spins.swift; sourceTree = "<group>"; };
 		AB0E8CE129FC6D2C00220EFE /* Spin Struct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Spin Struct.swift"; sourceTree = "<group>"; };
-		AB0E8CE529FC6D4800220EFE /* twoDMagnet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = twoDMagnet.swift; sourceTree = "<group>"; };
 		AB0E8CE929FC77B400220EFE /* Density of States.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Density of States.swift"; sourceTree = "<group>"; };
 		AB3EA8532AB4DC7D00B14CD0 /* MaxMin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaxMin.swift; sourceTree = "<group>"; };
 		ABD3AA462A01752600E33FDB /* Plot Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Plot Data.swift"; sourceTree = "<group>"; };
@@ -131,7 +127,6 @@
 				AB0E8CDD29FC6D0E00220EFE /* Spins.swift */,
 				AB0E8CE129FC6D2C00220EFE /* Spin Struct.swift */,
 				AB0E8CE929FC77B400220EFE /* Density of States.swift */,
-				AB0E8CE529FC6D4800220EFE /* twoDMagnet.swift */,
 				AB0E8CB229FC6CA300220EFE /* Assets.xcassets */,
 				AB0E8CB729FC6CA300220EFE /* Final_Project_Part_3.entitlements */,
 				AB0E8CB429FC6CA300220EFE /* Preview Content */,
@@ -297,7 +292,6 @@
 				AB0E8CEA29FC77B400220EFE /* Density of States.swift in Sources */,
 				AB3EA8542AB4DC7D00B14CD0 /* MaxMin.swift in Sources */,
 				AB0E8CB129FC6CA300220EFE /* ContentView.swift in Sources */,
-				AB0E8CE629FC6D4800220EFE /* twoDMagnet.swift in Sources */,
 				ABD3AA472A01752600E33FDB /* Plot Data.swift in Sources */,
 				AB0E8CDA29FC6CF200220EFE /* Energy.swift in Sources */,
 				AB0E8CE229FC6D2C00220EFE /* Spin Struct.swift in Sources */,
@@ -310,7 +304,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB0E8CE729FC6D4800220EFE /* twoDMagnet.swift in Sources */,
 				AB3EA8552AB4DC7D00B14CD0 /* MaxMin.swift in Sources */,
 				AB0E8CDF29FC6D0E00220EFE /* Spins.swift in Sources */,
 				AB0E8CC129FC6CA300220EFE /* Final_Project_Part_3Tests.swift in Sources */,
@@ -328,7 +321,6 @@
 				AB0E8CEC29FC77B400220EFE /* Density of States.swift in Sources */,
 				AB3EA8562AB4DC7D00B14CD0 /* MaxMin.swift in Sources */,
 				AB0E8CCD29FC6CA300220EFE /* Final_Project_Part_3UITestsLaunchTests.swift in Sources */,
-				AB0E8CE829FC6D4800220EFE /* twoDMagnet.swift in Sources */,
 				ABD3AA492A01752600E33FDB /* Plot Data.swift in Sources */,
 				AB0E8CDC29FC6CF200220EFE /* Energy.swift in Sources */,
 				AB0E8CE429FC6D2C00220EFE /* Spin Struct.swift in Sources */,

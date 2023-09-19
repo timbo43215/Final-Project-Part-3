@@ -20,6 +20,7 @@ struct EnergyAndMagHistogramData: Identifiable {
     var id: Double { energyAndMags }
     var energyAndMags: Double
     var energyAndMagHistogram: Double
+    var energyAndMagDOS: Double
 }
 
 struct ThermodynamicsPlot: Identifiable {
@@ -27,5 +28,6 @@ struct ThermodynamicsPlot: Identifiable {
     var id: Double { kT }
     var kT: Double
     var specificHeat: Double
+    var magnetismForPlot: Double
     
 }
