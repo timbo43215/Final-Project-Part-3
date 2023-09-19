@@ -15,3 +15,17 @@ struct DensityOfStatesHistogram: Identifiable {
     var histogram: Double
     
 }
+
+struct EnergyAndMagHistogramData: Identifiable {
+    var id: Double { energyAndMags }
+    var energyAndMags: Double
+    var energyAndMagHistogram: Double
+}
+
+struct ThermodynamicsPlot: Identifiable {
+    
+    var id: Double { kT }
+    var kT: Double
+    var specificHeat: Double
+    
+}

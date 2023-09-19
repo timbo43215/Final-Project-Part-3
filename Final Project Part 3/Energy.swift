@@ -15,4 +15,5 @@ class Energy: ObservableObject {
     @Published var magnetism: [Double] = []
     @Published var deltaMValues: [Double] = []
     @Published var energyAndMagValues:[(E:Double, M:Double)] = []
+    @Published var possibleEnergyAndMagValues:[(E:Double, M:Double)] = []
 }
