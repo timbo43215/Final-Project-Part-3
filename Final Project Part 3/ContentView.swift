@@ -94,34 +94,34 @@ struct ContentView: View {
                     .chartYAxisLabel(position: .top, alignment: .center) {Text("Histogram (E, M)")}
                     .padding()
                 }
-                VStack {
-                    Text("Specific Heat vs. T")
-                    Chart {
-                        ForEach(thermodynamicsPlotData, id: \.kT) { item in
-                            BarMark(
-                                x: .value("kT", item.kT),
-                                y: .value("Specific Heat", item.specificHeat)
-                            )
-                        }
-                    }
-                    .chartXAxisLabel(position: .bottom, alignment: .center) {Text("T")}
-                    .chartYAxisLabel(position: .top, alignment: .center) {Text("Specific Heat")}
-                    .padding()
-                }
-                VStack {
-                    Text("Magnetism vs. T")
-                    Chart {
-                        ForEach(thermodynamicsPlotData, id: \.kT) { item in
-                            BarMark(
-                                x: .value("kT", item.kT),
-                                y: .value("Magnetism", item.magnetismForPlot)
-                            )
-                        }
-                    }
-                    .chartXAxisLabel(position: .bottom, alignment: .center) {Text("T")}
-                    .chartYAxisLabel(position: .top, alignment: .center) {Text("Magnetism")}
-                    .padding()
-                }
+//                VStack {
+//                    Text("Specific Heat vs. T")
+//                    Chart {
+//                        ForEach(thermodynamicsPlotData, id: \.kT) { item in
+//                            BarMark(
+//                                x: .value("kT", item.kT),
+//                                y: .value("Specific Heat", item.specificHeat)
+//                            )
+//                        }
+//                    }
+//                    .chartXAxisLabel(position: .bottom, alignment: .center) {Text("T")}
+//                    .chartYAxisLabel(position: .top, alignment: .center) {Text("Specific Heat")}
+//                    .padding()
+//                }
+//                VStack {
+//                    Text("Magnetism vs. T")
+//                    Chart {
+//                        ForEach(thermodynamicsPlotData, id: \.kT) { item in
+//                            BarMark(
+//                                x: .value("kT", item.kT),
+//                                y: .value("Magnetism", item.magnetismForPlot)
+//                            )
+//                        }
+//                    }
+//                    .chartXAxisLabel(position: .bottom, alignment: .center) {Text("T")}
+//                    .chartYAxisLabel(position: .top, alignment: .center) {Text("Magnetism")}
+//                    .padding()
+//                }
             }
             
             HStack {
@@ -348,11 +348,11 @@ struct ContentView: View {
         //[gIndexTrial, gIndexPrevious, energyAndMagHistogramIndexTrial, energyAndMagHistogramIndexPrevious]
         var gIndexes: [Int] = []
         
-//        gIndexTrial = myEnergy.possibleEnergyArray.firstIndex(of: newEnergy)!
-//        gIndexes.append(gIndexTrial)
-//
-//        gIndexPrevious = myEnergy.possibleEnergyArray.firstIndex(of: previousEnergy)!
-//        gIndexes.append(gIndexPrevious)
+        gIndexTrial = myEnergy.possibleEnergyArray.firstIndex(of: newEnergy)!
+        gIndexes.append(gIndexTrial)
+
+        gIndexPrevious = myEnergy.possibleEnergyArray.firstIndex(of: previousEnergy)!
+        gIndexes.append(gIndexPrevious)
         
         for Index1 in 0...myEnergy.possibleEnergyAndMagValues.count-1 {
             if myEnergy.possibleEnergyAndMagValues[Index1] == (newEnergy, newMag){
@@ -369,33 +369,34 @@ struct ContentView: View {
         return gIndexes
     }
     
-//    func calculateProbabilityOfAcceptance (gIndexTrial: Int, gIndexPrevious: Int) async -> Double {
-//        var P: Double = 0.0
-//        var lnTrialDensityOfStates = calculateLnTrialDensityOfStates(gIndexTrial: gIndexTrial)
-//
-//
-//        P = exp(myDensityOfStates.lnDensityOfStates[gIndexPrevious] - myDensityOfStates.lnDensityOfStates[gIndexTrial])
-//
-//        return P
-//    }
+    func calculateProbabilityOfAcceptance (gIndexTrial: Int, gIndexPrevious: Int) async -> Double {
+        var P: Double = 0.0
+        var lnTrialDensityOfStates = calculateLnTrialDensityOfStates(gIndexTrial: gIndexTrial)
+
+
+        P = exp(myDensityOfStates.lnDensityOfStates[gIndexPrevious] - myDensityOfStates.lnDensityOfStates[gIndexTrial])
+
+        return P
+    }
     
     // min[previous/trial, 1]
     
-    func calculateProbabilityOfAcceptance (energyAndMagnetismIndexTrial: Int, energyAndMagnetismIndexPrevious: Int) async -> Double {
-        var P: Double = 0.0
-        
-        P = exp(myDensityOfStates.DOSEnergyAndMag[energyAndMagnetismIndexPrevious] - myDensityOfStates.DOSEnergyAndMag[energyAndMagnetismIndexTrial])
-        
-        return P
+    func calculateProbabilityOfAcceptanceEandM (energyAndMagnetismIndexTrial: Int, energyAndMagnetismIndexPrevious: Int) async -> Double {
+        var R: Double = 0.0
+
+        R = exp(myDensityOfStates.DOSEnergyAndMag[energyAndMagnetismIndexPrevious] - myDensityOfStates.DOSEnergyAndMag[energyAndMagnetismIndexTrial])
+
+        return R
     }
     
     func calculateDensityOfStatesCheck () async {
         let gIndexes = await calculateGIndexes()
-        let uniformRandomNumber = Double.random(in: 0...1)
-//        let gIndexTrial = gIndexes[0]
-//        let gIndexPrevious = gIndexes[1]
-        let energyAndMagnetismIndexTrial = gIndexes[0]
-        let energyAndMagnetismIndexPrevious = gIndexes[1]
+//        let uniformRandomNumber = Double.random(in: 0...1)
+        let uniformRandomNumber = 1.0
+        let gIndexTrial = gIndexes[0]
+        let gIndexPrevious = gIndexes[1]
+        let energyAndMagnetismIndexTrial = gIndexes[2]
+        let energyAndMagnetismIndexPrevious = gIndexes[3]
         
 //        if (myDensityOfStates.lnDensityOfStates[gIndexTrial] <= myDensityOfStates.lnDensityOfStates[gIndexPrevious]) {
         if (myDensityOfStates.DOSEnergyAndMag[energyAndMagnetismIndexTrial] <= myDensityOfStates.DOSEnergyAndMag[energyAndMagnetismIndexPrevious]) {
@@ -403,8 +404,8 @@ struct ContentView: View {
                 // Make the trial configuration the new spin configuration
                 mySpins.spinConfiguration = trialConfigurationForCheck
                 // Add 1 to Density of States and Multiply by f
-//                myDensityOfStates.histogram[gIndexTrial] += 1.0
-//                myDensityOfStates.lnDensityOfStates[gIndexTrial] += log(f)
+                myDensityOfStates.histogram[gIndexTrial] += 1.0
+                myDensityOfStates.lnDensityOfStates[gIndexTrial] += log(f)
                 
                 myDensityOfStates.histogramEnergyAndMag[energyAndMagnetismIndexTrial] += 1.0
                 myDensityOfStates.DOSEnergyAndMag[energyAndMagnetismIndexTrial] += log(f)
@@ -420,16 +421,17 @@ struct ContentView: View {
 //        else if (myDensityOfStates.lnDensityOfStates[gIndexTrial] > myDensityOfStates.lnDensityOfStates[gIndexPrevious]) {
         else if (myDensityOfStates.DOSEnergyAndMag[energyAndMagnetismIndexTrial] > myDensityOfStates.DOSEnergyAndMag[energyAndMagnetismIndexPrevious]) {
         
-            let P = await calculateProbabilityOfAcceptance(energyAndMagnetismIndexTrial: energyAndMagnetismIndexTrial, energyAndMagnetismIndexPrevious: energyAndMagnetismIndexPrevious)
+//            let P = await calculateProbabilityOfAcceptance(gIndexTrial: gIndexTrial, gIndexPrevious: gIndexPrevious)
+            let R = await calculateProbabilityOfAcceptanceEandM(energyAndMagnetismIndexTrial: energyAndMagnetismIndexTrial, energyAndMagnetismIndexPrevious: energyAndMagnetismIndexPrevious)
             
-                if (P >= uniformRandomNumber) {
-                    
+//                if (P >= uniformRandomNumber) {
+                if (R >= uniformRandomNumber) {
                     // Make the trial configuration the new spin configuration
                     mySpins.spinConfiguration = trialConfigurationForCheck
                     
                     // Add 1 to Density of States and Histogram and Multiply Density of States by f
-//                    myDensityOfStates.histogram[gIndexTrial] += 1.0
-//                    myDensityOfStates.lnDensityOfStates[gIndexTrial] += log(f)
+                    myDensityOfStates.histogram[gIndexTrial] += 1.0
+                    myDensityOfStates.lnDensityOfStates[gIndexTrial] += log(f)
                     
                     myDensityOfStates.histogramEnergyAndMag[energyAndMagnetismIndexTrial] += 1.0
                     myDensityOfStates.DOSEnergyAndMag[energyAndMagnetismIndexTrial] += log(f)
@@ -443,10 +445,11 @@ struct ContentView: View {
                     myEnergy.energyAndMagValues.append(bob)
                         
                     }
-                else if (P < uniformRandomNumber) {
+//                else if (P < uniformRandomNumber) {
+                else if (R < uniformRandomNumber) {
                         
-//                    myDensityOfStates.histogram[gIndexPrevious] += 1.0
-//                    myDensityOfStates.lnDensityOfStates[gIndexPrevious] += log(f)
+                    myDensityOfStates.histogram[gIndexPrevious] += 1.0
+                    myDensityOfStates.lnDensityOfStates[gIndexPrevious] += log(f)
                     
                     myDensityOfStates.histogramEnergyAndMag[energyAndMagnetismIndexPrevious] += 1.0
                     myDensityOfStates.DOSEnergyAndMag[energyAndMagnetismIndexPrevious] += log(f)
@@ -519,19 +522,19 @@ struct ContentView: View {
                 sumNumerator1 += myEnergy.possibleEnergyAndMagValues[energyAndMag].1*myDensityOfStates.DOSEnergyAndMag[energyAndMag]*exp(-myEnergy.possibleEnergyAndMagValues[energyAndMag].0/kTArray[T])
                 sumDenominator1 += myDensityOfStates.DOSEnergyAndMag[energyAndMag]*exp(-myEnergy.possibleEnergyAndMagValues[energyAndMag].0/kTArray[T])
             }
-            magnetismForPlot = sumNumerator1/(totalSpins*sumDenominator1)
+            magnetismForPlot = (1/totalSpins)*(sumNumerator1/sumDenominator1)
             
             magnetismArray.append(magnetismForPlot)
         }
     }
     
-    func calculatePlotData () async {
+    func calculatePlotData (BobArray: [Double]) async {
         await calculateSpecificHeat()
         
-//        for energy in 0...(myEnergy.possibleEnergyArray.count - 1) {
-//
-//            histogramData.append(DensityOfStatesHistogram(energies: myEnergy.possibleEnergyArray[energy], densityOfStates: BobArray[energy], histogram: myDensityOfStates.histogram[energy]))
-//        }
+        for energy in 0...(myEnergy.possibleEnergyArray.count - 1) {
+
+            histogramData.append(DensityOfStatesHistogram(energies: myEnergy.possibleEnergyArray[energy], densityOfStates: BobArray[energy], histogram: myDensityOfStates.histogram[energy]))
+        }
         
         for energy in 0...(myEnergy.possibleEnergyAndMagValues.count - 1) {
             
@@ -620,19 +623,28 @@ struct ContentView: View {
 //                    }
 //
 //                }
-                    if (zeros == 0) {
-                        
+                        let averageDOS = Double(x)/Double(myDensityOfStates.DOSEnergyAndMag.count)
+                        let doubleAverageDOS = averageDOS*2
+                        print(averageDOS)
+//                        let maxMaximum = averageDOS*1.2
+//                        print(maxMaximum)
+//                        let minMinimum = averageDOS*0.8
+//                        print(minMinimum)
                         let densityMax: Double = myDensityOfStates.histogram.max()!
+                        print(densityMax)
                         //let densityMin = currentMinimum
-                        let densityMin = getMin(value1: myDensityOfStates.histogram)
+                        let densityMin = getMin(value1: myDensityOfStates.histogram, minAccepted: 0.1)
+                        print(densityMin)
                         let energyAndMagDOSMax: Double = myDensityOfStates.histogramEnergyAndMag.max()!
-                        let energyAndMagDOSMin = getMin(value1: myDensityOfStates.histogramEnergyAndMag)
+//                        print(energyAndMagDOSMax)
+                        let energyAndMagDOSMin = getMin(value1: myDensityOfStates.histogramEnergyAndMag, minAccepted: doubleAverageDOS)
+//                        print(energyAndMagDOSMin)
                         
-//                        stoppingPoint = (densityMax - densityMin)/(densityMax + densityMin)
+                        stoppingPoint = (densityMax - densityMin)/(densityMax + densityMin)
                         stoppingPointEnergyAndMag = (energyAndMagDOSMax - energyAndMagDOSMin)/(energyAndMagDOSMax + energyAndMagDOSMin)
                         
-//                        if (stoppingPoint < 0.2) && (stoppingPointEnergyAndMag < 0.2) {
                         if (stoppingPointEnergyAndMag < 0.2) {
+//                        if (stoppingPoint < 0.2) {
                                 f = sqrt(f)
                             if f < (1 + fTolerance){}
                             else {
@@ -640,25 +652,24 @@ struct ContentView: View {
                             }
                             //print(myDensityOfStates.lnDensityOfStates)
                         }
-//                        print(String("Stopping Point H(E): ") + String(stoppingPoint))
+                        print(String("Stopping Point H(E): ") + String(stoppingPoint))
                         print(String("Stopping Point H(E,M): ") + String(stoppingPointEnergyAndMag))
                         print(String("f value: ") + String(f))
                         print(String("Iteration: ") + String(x))
-                    }
                 }
             }
         
         print("Final Density of States Calculated!")
-//        var lnDOSForPlot = myDensityOfStates.lnDensityOfStates
-//        var BobArray :[Double] = []
-//        for i in 0..<(myDensityOfStates.lnDensityOfStates.count) {
-//            BobArray.append(lnDOSForPlot[i] - lnDOSForPlot[0] + log(2))
-//            // exp(lnDOSForPlot[i] - lnDOSForPlot[0] + log(2))             // probably 24 or 25
-//            if BobArray[i] < 0.0 {
-//                BobArray[i] = 0.0
-//            }
-//        }
-        await calculatePlotData()
+        var lnDOSForPlot = myDensityOfStates.lnDensityOfStates
+        var BobArray :[Double] = []
+        for i in 0..<(myDensityOfStates.lnDensityOfStates.count) {
+            BobArray.append(lnDOSForPlot[i] - lnDOSForPlot[0] + log(2))
+            // exp(lnDOSForPlot[i] - lnDOSForPlot[0] + log(2))             // probably 24 or 25
+            if BobArray[i] < 0.0 {
+                BobArray[i] = 0.0
+            }
+        }
+        await calculatePlotData(BobArray: BobArray)
         await calculateSpecificHeat()
         
         print("Bob")

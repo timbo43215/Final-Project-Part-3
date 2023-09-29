@@ -8,14 +8,14 @@
 import Foundation
 
 
-func getMin(value1:[Double]) -> (Double) {
+func getMin(value1:[Double], minAccepted: Double) -> (Double) {
     
     var min = 1E56
    
     
     for item in value1 {
         
-        if item == 0 {}
+        if item <= minAccepted {}
         else if (item < min) {
             min = item
         }
